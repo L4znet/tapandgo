@@ -6,8 +6,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, BottomNavigation, Appbar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getHeaderTitle } from '@react-navigation/elements';
-import HomeScreen from './HomeScreen';
-
+import MapScreen from './map';
+import ListScreen from './list';
+import { router } from 'expo-router';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,14 +18,14 @@ export default function TabLayout() {
   const routes = [
     {
       "name": "map",
-      "component": HomeScreen,
+      "component": MapScreen,
       "focusedIcon": "map",
       "unfocusedIcon": "map-outline",
       "label": "La carte",
     },
     {
       "name": "list",
-      "component": SettingsScreen,
+      "component": ListScreen,
       "focusedIcon": "cog",
       "unfocusedIcon": "cog-outline",
       "label": "La liste",
@@ -34,12 +35,12 @@ export default function TabLayout() {
   const handleSearch = () => goTo('Search')
 
   const goTo = (route) => {
-    navigation.navigate(route)
+    router.push('/(root)/search');
   }
   
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="map"
       screenOptions={{
         header: ({ navigation, route, options }) => {
           console.log(route)
