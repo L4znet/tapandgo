@@ -1,13 +1,29 @@
+import { useAllBicycleStations } from '@/hooks/useAllBicycleStations'
 import React from 'react'
-import { View } from 'react-native'
-import { Text } from 'react-native-paper'
-import MapView from 'react-native-maps'
+import { View, StyleSheet, FlatList } from 'react-native'
+import ListItem from '@/components/listItem'
+
+
+
+
 const ListScreen = () => {
+
     return (
-        <View>
-            <MapView></MapView>
+        <View style={styles.container}>        
+ 
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    card:{
+        width: '95%',
+        margin: 10,
+    }
+})
 
 export default ListScreen

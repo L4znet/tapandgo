@@ -1,5 +1,4 @@
-// TabLayout.js
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -10,57 +9,50 @@ import MapScreen from './map';
 import ListScreen from './list';
 import { router } from 'expo-router';
 import { useNavigationState } from '@react-navigation/native';
-import { useSearch } from '../contexts/searchContext';
+import { useSearch } from '../contexts/SearchContext';
+import { useSearchBicycleStations } from '../../hooks/useSearchBicycleStations';
 
 const Tab = createBottomTabNavigator();
 
 export default function TabLayout() {
   const navigation = useNavigation();
-  const mapRef = useRef(null);  // Créer une référence pour MapScreen
+  const mapRef = useRef(null); // Here we add a ref for mapscreen
   const [searchQuery, setSearchQuery] = useState('');
-
 
   const navigationState = useNavigationState(state => state);
 
-  const getCurrentTabName = () => {
+  const getCurrentTabName = useCallback(() => {
     if (!navigationState) return null;
     const tabRoute = navigationState.routes.find(route => route.name === '(tabs)');
     if (!tabRoute || !tabRoute.state) return null;
     const activeTabIndex = tabRoute.state.index;
     const activeTabRoute = tabRoute.state.routes[activeTabIndex];
     return activeTabRoute.name;
-  };
- 
+  }, [navigationState]);
 
-  const handleSearch = () => {
+  const { searchTerm, setSearchTerm, coordinates } = useSearch();
+  const { filteredStations } = useSearchBicycleStations();
 
-    const currentRoute = getCurrentTabName();
-
-    if(currentRoute === 'map') {
-      if (mapRef.current) {
-        const targetRegion = {
-          latitude: 30.8566, 
-          longitude: 3.3522,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        };
-
-
-          
-
-
-
-        mapRef.current.animateToRegion(targetRegion);
-      }
-    } else if(currentRoute === 'list') {
-   
-
-
-
+  useEffect(() => {
+    if (mapRef.current && coordinates.latitude && coordinates.longitude) {
+      const targetRegion = {
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
+        latitudeDelta: coordinates.latitudeDelta || 0.0922,
+        longitudeDelta: coordinates.longitudeDelta || 0.0421,
+      };
+      mapRef.current.animateToRegion(targetRegion);
     }
+  }, [coordinates]);
 
+  const handleSearch = useCallback(() => {
+    setSearchTerm(searchQuery);
+  }, [searchQuery, setSearchTerm]);
 
-  };
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+    setSearchTerm('');
+  }, [setSearchTerm]);
 
   return (
     <Tab.Navigator
@@ -77,6 +69,7 @@ export default function TabLayout() {
                 onChangeText={setSearchQuery}
                 value={searchQuery}
                 onIconPress={handleSearch}
+                onClearIconPress={handleClearSearch}
               />
             </Appbar.Header>
           );

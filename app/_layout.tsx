@@ -5,21 +5,26 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import 'react-native-screens';
 import { Provider as PaperProvider } from 'react-native-paper';
-import { useNavigationState } from '@react-navigation/native';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-import SearchScreen from './(root)/search';
-import MapScreen from './(tabs)/map';
-import { SearchProvider, useSearch } from './contexts/searchContext';
+import { SearchProvider, useSearch } from './contexts/SearchContext';
+
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from '@tanstack/react-query'
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+const queryClient = new QueryClient()
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+
+  
 
   useEffect(() => {
     if (loaded) {
@@ -34,14 +39,16 @@ export default function RootLayout() {
 
 
   return (
-    <SearchProvider>
-      <PaperProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(root)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </PaperProvider>
-    </SearchProvider>
+    <QueryClientProvider client={queryClient}>
+      <SearchProvider>
+        <PaperProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(root)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </PaperProvider>
+      </SearchProvider>
+    </QueryClientProvider>
   );
 }
