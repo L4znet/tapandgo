@@ -6,11 +6,9 @@ import { Text, BottomNavigation, Appbar, Searchbar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getHeaderTitle } from '@react-navigation/elements';
 import StationsScreen from './stations';
-import SearchScreen from '../search';
-import { useNavigationState } from '@react-navigation/native';
 import { useSearch } from '../contexts/SearchContext';
 import ItineraryScreen from './itinerary';
-import searchDrawer from '@/components/searchDrawer';
+import SearchDrawer from '@/components/SearchDrawer';
 
 const Tab = createBottomTabNavigator();
 
@@ -87,7 +85,7 @@ export default function TabLayout() {
       </Tab.Screen>
       <Tab.Screen
         name="search"
-        component={searchDrawer}
+        component={SearchDrawer}
         options={{
           headerShown: false,
           title: "Rechercher",
