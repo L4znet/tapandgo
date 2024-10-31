@@ -19,7 +19,7 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient()
 
-export default function RootLayout() {
+const Layout = () => {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -45,6 +45,7 @@ export default function RootLayout() {
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(root)" options={{ headerShown: false }} />
+            <Stack.Screen name="(search)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
         </PaperProvider>
@@ -52,3 +53,5 @@ export default function RootLayout() {
     </QueryClientProvider>
   );
 }
+
+export default Layout;

@@ -5,8 +5,6 @@ import 'react-native-screens';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Appbar } from 'react-native-paper';
 import { getHeaderTitle } from '@react-navigation/elements';
-
-import SearchScreen from './search';
 import DetailsScreen from './details';
 
 const Stack = createStackNavigator();
@@ -25,13 +23,11 @@ export default function RootLayout() {
         const title = getHeaderTitle(options, route.name);
         return (
           <Appbar.Header>
-            <Appbar.BackAction onPress={navigation.goBack} />
             <Appbar.Content title={title} />
           </Appbar.Header>
         )
       },
     }}>
-      <Stack.Screen name="search" component={SearchScreen}/>
       <Stack.Screen name="details" component={DetailsScreen} 
         options={{ title: 'Détail de la station'}}
       />

@@ -47,6 +47,14 @@ const SearchScreen = () => {
     return (
         <View style={styles.container}>
             <View style={styles.searchBarContainer}>
+                <Searchbar
+                    style={styles.searchBar}
+                    placeholder="Search"
+                    onChangeText={setSearchQuery}
+                    value={searchQuery}
+                    onIconPress={handleSearch}
+                    onClearIconPress={handleClearSearch}
+                />
             </View> 
             <View style={{flex: 1, width: '100%'}}>
                 <FlatList
