@@ -6,7 +6,7 @@ import 'react-native-reanimated';
 import 'react-native-screens';
 import { Provider as PaperProvider } from 'react-native-paper';
 
-import { SearchProvider, useSearch } from './contexts/SearchContext';
+import { SearchProvider } from './contexts/SearchContext';
 
 import {
   QueryClient,

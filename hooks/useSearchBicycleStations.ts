@@ -18,12 +18,12 @@ export function useSearchBicycleStations() {
         if (filteredStations.length > 0) {
             const { position } = filteredStations[0];
             if (position && position.latitude && position.longitude) {
-                setCoordinates({ latitude: position.latitude, longitude: position.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 });
+                setCoordinates({ latitude: position.latitude, longitude: position.longitude, latitudeDelta: 0.001, longitudeDelta: 0.001 });
             } else {
-                setCoordinates({ latitude: null, longitude: null, latitudeDelta: 0.0922, longitudeDelta: 0.0421 });
+                setCoordinates({ latitude: null, longitude: null, latitudeDelta: 0.001, longitudeDelta: 0.001 });
             }
         } else {
-            setCoordinates({ latitude: null, longitude: null, latitudeDelta: 0.0922, longitudeDelta: 0.0421 });
+            setCoordinates({ latitude: null, longitude: null, latitudeDelta: 0.001, longitudeDelta: 0.001 });
         }
     }, [filteredStations, setCoordinates]);
 

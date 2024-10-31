@@ -1,20 +1,20 @@
 import { BicycleStation } from "@/types/BicycleStation";
 import { useState, useEffect } from "react";
 const BASE_URL = 'https://api.jcdecaux.com/vls/v3';
-const API_KEY = process.env.JCDECAUX_TOKEN;
+import { JCDECAUX_TOKEN } from '@env';
 
-export function useSingleBicycleStation(stationId: number) {
+export function useSingleBicycleStation(stationNumber: string, contractName: string) {
     const [station, setStation] = useState<BicycleStation | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null); 
   
     useEffect(() => {
-      if (!stationId) return; 
+      if (!stationNumber && !contractName) return; 
   
       const fetchStation = async () => {
         setLoading(true);
         try {
-          const response = await fetch(`${BASE_URL}/stations/${stationId}?apiKey=${API_KEY}`);
+          const response = await fetch(`${BASE_URL}/stations/${stationNumber}?contract=${contractName}&apiKey=${JCDECAUX_TOKEN}`);
           if (!response.ok) {
             throw new Error(`Erreur : ${response.statusText}`);
           }
@@ -28,7 +28,7 @@ export function useSingleBicycleStation(stationId: number) {
       };
   
       fetchStation();
-    }, [stationId]);
+    }, [stationNumber, contractName]);
   
     return { station, loading, error };
   }
