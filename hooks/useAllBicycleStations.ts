@@ -3,6 +3,8 @@ import { BicycleStation } from '@/types/BicycleStation';
 const BASE_URL = 'https://api.jcdecaux.com/vls/v3';
 import { JCDECAUX_TOKEN } from '@env';
 
+
+
 const fetchStations = async (): Promise<BicycleStation[]> => {
     const response = await fetch(`${BASE_URL}/stations?apiKey=${JCDECAUX_TOKEN}`);
     if (!response.ok) {

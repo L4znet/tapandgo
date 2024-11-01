@@ -6,16 +6,18 @@ import { Text, BottomNavigation, Appbar, Searchbar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getHeaderTitle } from '@react-navigation/elements';
 import StationsScreen from './stations';
-import { useSearch } from '../contexts/SearchContext';
+import SearchScreen from '../search';
 import ItineraryScreen from './itinerary';
-import SearchDrawer from '@/components/SearchDrawer';
+import { useSearch } from '../contexts/SearchContext';
+import MapView from 'react-native-maps';
 
 const Tab = createBottomTabNavigator();
 
-export default function TabLayout() {
-  const mapRef = useRef(null); // Here we add a ref for mapscreen
+const TabLayout: React.FC = () => {
+  const mapRef = useRef<MapView>(null); // Here we add a ref for mapscreen
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const { coordinates } = useSearch();
+  const { setSearchTerm, coordinates } = useSearch();
 
   useEffect(() => {
     if (mapRef.current && coordinates.latitude && coordinates.longitude) {
@@ -29,6 +31,15 @@ export default function TabLayout() {
     }
   }, [coordinates]);
 
+  const handleSearch = useCallback(() => {
+    setSearchTerm(searchQuery);
+  }, [searchQuery, setSearchTerm]);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+    setSearchTerm('');
+  }, [setSearchTerm]);
+
   return (
     <Tab.Navigator
       initialRouteName="stations"
@@ -39,7 +50,7 @@ export default function TabLayout() {
             <Appbar.Header style={styles.header}>
               <Appbar.Content title={title} style={styles.headerContent} />
             </Appbar.Header>
-          )
+          );
         },
       }}
       tabBar={({ navigation, state, descriptors, insets }) => (
@@ -85,9 +96,8 @@ export default function TabLayout() {
       </Tab.Screen>
       <Tab.Screen
         name="search"
-        component={SearchDrawer}
+        component={SearchScreen}
         options={{
-          headerShown: false,
           title: "Rechercher",
           tabBarIcon: ({ color, focused }) => (
             <Icon name={focused ? "magnify" : "magnify"} color={color} size={24} />
@@ -100,7 +110,7 @@ export default function TabLayout() {
         options={{
           title: "Itinéraire",
           tabBarIcon: ({ color, focused }) => (
-            <Icon name={focused ? "map-marker-path" : "map-marker-path"} color={color} size={24} />
+            <Icon name={focused ? "map-marker-path" : "map-marker-path-outline"} color={color} size={24} />
           ),
         }}
       />
@@ -110,7 +120,7 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   header: {
-    minHeight: 50,
+    height: 60,
     display: 'flex',
     flexDirection: 'column',
   },
@@ -120,21 +130,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'column',
     width: '100%',
-    color: 'white',
-  },
-  searchBarContainer:{
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    height: 50,
-    color: 'white',
   },
   searchBar: {
     margin: 20,
     width: '95%',
-    color: 'white',
-    },
-
+  },
 });
+
+export default TabLayout;

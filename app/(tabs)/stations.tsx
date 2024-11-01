@@ -1,26 +1,41 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Searchbar, Card, Text } from 'react-native-paper';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Region } from 'react-native-maps';
 import { useSearch } from '../contexts/SearchContext';
 import { useSearchBicycleStations } from '../../hooks/useSearchBicycleStations';
-import { router, useNavigation } from 'expo-router';
 
-const StationsScreen = () => {
-  const mapRef = useRef(null);
-  const [searchQuery, setSearchQuery] = useState('');
+interface Station {
+  number: number;
+  name: string;
+  position: {
+    latitude: number;
+    longitude: number;
+  };
+}
+
+const StationsScreen: React.FC = () => {
+  const mapRef = useRef<MapView>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const { searchTerm, setSearchTerm, coordinates } = useSearch();
   const { filteredStations, loading, error } = useSearchBicycleStations();
-  const [longitudeDelta, setLongitudeDelta] = useState(null);
+  const [longitudeDelta, setLongitudeDelta] = useState<number>(0.0421);
 
-  const [initialRegion, setInitialRegion] = useState({
-    latitude: 47.2184,
-    longitude: -1.5536, 
-    latitudeDelta: 0.10,
-    longitudeDelta: 0.10,
-  });
+  useEffect(() => {
+    if (coordinates.latitude && coordinates.longitude) {
+      const targetRegion: Region = {
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
+        latitudeDelta: coordinates.latitudeDelta || 0.0922,
+        longitudeDelta: coordinates.longitudeDelta || 0.0421,
+      };
+      mapRef.current?.animateToRegion(targetRegion, 2000);
+    }
+  }, [coordinates]);
 
-  const navigation = useNavigation();
+  const handleRegionChangeComplete = useCallback((region: Region) => {
+    setLongitudeDelta(region.longitudeDelta);
+  }, []);
 
   const handleSearch = useCallback(() => {
     setSearchTerm(searchQuery);
@@ -31,27 +46,8 @@ const StationsScreen = () => {
     setSearchTerm('');
   }, [setSearchTerm]);
 
-  const goToAPoint = (station) => {
-    mapRef.current.animateToRegion({
-      latitude: station.position.latitude,
-      longitude: station.position.longitude,
-      latitudeDelta: 0.0001,
-      longitudeDelta: 0.0001,
-    });
-  }
-
-  const goToDetail = (station) => {
-    router.push({
-      pathname: '/details',
-      params: {
-        stationNumber: station.number,
-        contractName: station.contractName,
-      },
-    });
-  }
-
-  const renderItem = ({ item }) => (
-    <Card style={styles.card} onPress={() => goToAPoint(item)} onLongPress={() => goToDetail(item)}>
+  const renderItem = ({ item }: { item: Station }) => (
+    <Card style={styles.card}>
       <Card.Content>
         <Text>{item.name}</Text>
       </Card.Content>
@@ -66,11 +62,10 @@ const StationsScreen = () => {
       <MapView
         ref={mapRef}
         style={styles.map}
-        initialRegion={initialRegion}
+        onRegionChangeComplete={handleRegionChangeComplete}
       >
-        {filteredStations.map((station, index) => (
+        {filteredStations.map((station: Station, index: number) => (
           <Marker
-            onPress={() => goToDetail(station)}
             key={index}
             coordinate={{
               latitude: station.position.latitude,
@@ -81,12 +76,14 @@ const StationsScreen = () => {
         ))}
       </MapView>
       <FlatList
-        initialNumToRender={7}
         data={filteredStations}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         onEndReachedThreshold={0.5}
       />
+      <View style={styles.zoomLevel}>
+        <Text>Longitude Delta: {longitudeDelta}</Text>
+      </View>
     </View>
   );
 };
