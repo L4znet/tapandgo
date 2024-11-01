@@ -1,3 +1,4 @@
+import { BicycleStation } from '@/types/BicycleStation';
 import { useAllBicycleStations } from './useAllBicycleStations';
 import { useMemo } from 'react';
 
@@ -28,20 +29,12 @@ const calcDistances = (lat1, lon1, lat2, lon2) => {
  * @param station 
  * @returns 
  */
-const isStationAvailable = (station) => {
-    const currentTime = new Date();
-    const openingHours = station.opening_hours; // Assumes station has an `opening_hours` property
-    const bikesAvailable = station.available_bikes > 0; // Assumes station has an `available_bikes` property
+const isStationAvailable = (station: BicycleStation) => {
+    const isStationAvailable = station.status === 'OPEN' && station.lastUpdate === 'OPEN';
 
-    // Check if the station is open
-    if (!openingHours) return false;
-
-    const isOpen = openingHours.some(hour => {
-        const [start, end] = hour.split('-').map(t => new Date(`1970-01-01T${t}:00`));
-        return currentTime >= start && currentTime <= end;
-    });
-
-    return isOpen && bikesAvailable;
+    const bikesAvailable = station.mainStands.availabilities.bikes > 0; // Assumes station has an `available_bikes` property
+    if (!isStationAvailable) return false;
+    return isStationAvailable && bikesAvailable;
 };
 
 /**
@@ -51,7 +44,7 @@ const isStationAvailable = (station) => {
  * @param longitude 
  * @returns 
  */
-export function useNearestBicycleStations(latitude, longitude) {
+export function useNearestBicycleStations(latitude: number, longitude: number) {
     const { stations, loading, error } = useAllBicycleStations();
     const nearestStation = useMemo(() => {
         if (!stations || !latitude || !longitude) return null;

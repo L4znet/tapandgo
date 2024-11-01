@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, BottomNavigation, Appbar, Searchbar } from 'react-native-paper';
+import { BottomNavigation, Appbar, Searchbar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getHeaderTitle } from '@react-navigation/elements';
 import StationsScreen from './stations';
@@ -78,7 +78,8 @@ const TabLayout: React.FC = () => {
           }}
           getLabelText={({ route }) => {
             const { options } = descriptors[route.key];
-            return options.tabBarLabel ?? options.title ?? route.title;
+            const label = options.tabBarLabel ?? options.title ?? route.name;
+            return typeof label === 'string' ? label : undefined;
           }}
         />
       )}

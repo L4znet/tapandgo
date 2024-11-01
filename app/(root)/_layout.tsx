@@ -1,4 +1,3 @@
-
 import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
 import 'react-native-screens';
@@ -9,8 +8,6 @@ import DetailsScreen from './details';
 
 const Stack = createStackNavigator();
 
-
-
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -19,7 +16,7 @@ export default function RootLayout() {
     <Stack.Navigator
     initialRouteName="search"
     screenOptions={{
-      header: ({ navigation, route, options }) => {
+      header: ({ route, options }) => {
         const title = getHeaderTitle(options, route.name);
         return (
           <Appbar.Header>

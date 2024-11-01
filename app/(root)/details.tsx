@@ -10,9 +10,10 @@ const DetailsScreen = () => {
 
     const {stationNumber, contractName} = params;
 
-    const { station, loading, error } = useSingleBicycleStation(stationNumber, contractName);
-
-
+    const { station, loading, error } = useSingleBicycleStation(
+        Array.isArray(stationNumber) ? stationNumber[0] : stationNumber,
+        Array.isArray(contractName) ? contractName[0] : contractName
+    );
     return (
         <View>
             <Text style={styles.stationName}>{station?.name}</Text>

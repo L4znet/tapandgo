@@ -1,4 +1,3 @@
-import { useAllBicycleStations } from '@/app/hooks/useAllBicycleStations';
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, FlatList, Text, TouchableOpacity, Alert } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
@@ -8,35 +7,37 @@ import { useNearestBicycleStations } from '@/app/hooks/useNearestBicycleStations
 const ItineraryScreen = () => {
     const [startStation, setStartStation] = useState('');
     const [endStation, setEndStation] = useState('');
-    const [startSuggestions, setStartSuggestions] = useState([]);
-    const [endSuggestions, setEndSuggestions] = useState([]);
-    const [startStationCoord, setStartStationCoord] = useState({
+    const [startSuggestions, setStartSuggestions] = useState<{ id: string; address: { freeformAddress: string }; position: { lat: number; lon: number } }[]>([]);
+    const [endSuggestions, setEndSuggestions] = useState<{ id: string; address: { freeformAddress: string }; position: { lat: number; lon: number } }[]>([]);
+    
+    const [startStationCoord, setStartStationCoord] = useState<{ latitude: number | null, longitude: number | null }>({
         latitude: null,
         longitude: null
     });
-    const [endStationCoord, setEndStationCoord] = useState({
+    const [endStationCoord, setEndStationCoord] = useState<{ latitude: number | null, longitude: number | null }>({
         latitude: null,
         longitude: null
     });
-    const [filteredStations, setFilteredStations] = useState([]);
 
-    const { nearestStation: nearestStartStation } = useNearestBicycleStations(startStationCoord.latitude, startStationCoord.longitude);
-    const { nearestStation: nearestEndStation } = useNearestBicycleStations(endStationCoord.latitude, endStationCoord.longitude);
+    const [filteredStations, setFilteredStations] = useState<{ name: string; position: { latitude: number; longitude: number | null; } }[]>([]);
+
+    const { nearestStation: nearestStartStation } = useNearestBicycleStations(startStationCoord.latitude, startStationCoord.longitude) as { nearestStation: { name: string } | null };
+    const { nearestStation: nearestEndStation } = useNearestBicycleStations(endStationCoord.latitude, endStationCoord.longitude) as { nearestStation: { name: string } | null };
 
     useEffect(() => {
         if (nearestStartStation) {
-            setStartStation(nearestStartStation);
+            setStartStation(nearestStartStation.name);
         }
     }, [nearestStartStation]);
 
     useEffect(() => {
         if (nearestEndStation) {
-            setEndStation(nearestEndStation);
+            setEndStation(nearestEndStation.name);
         }
     }, [nearestEndStation]);
   
 
-    const fetchSuggestions = async (query, setSuggestions) => {
+    const fetchSuggestions = async (query: React.SetStateAction<string>, setSuggestions: React.Dispatch<React.SetStateAction<{ id: string; address: { freeformAddress: string }; position: { lat: number; lon: number } }[]>>) => {
         if (!query) return;
         try {
             const response = await fetch(`https://api.tomtom.com/search/2/search/${query}.json?key=${TOMTOM_API_TOKEN}&typeahead=true&limit=5`);
@@ -47,23 +48,23 @@ const ItineraryScreen = () => {
         }
     };
 
-    const onStartStationChange = (text) => {
-        setStartStation(text);
-        fetchSuggestions(text, setStartSuggestions);
+    const onStartStationChange = (startStation: React.SetStateAction<string>) => {
+        setStartStation(startStation);
+        fetchSuggestions(startStation, setStartSuggestions);
     };
 
-    const onEndStationChange = (text) => {
-        setEndStation(text);
-        fetchSuggestions(text, setEndSuggestions);
+    const onEndStationChange = (endStation: React.SetStateAction<string>) => {
+        setEndStation(endStation);
+        fetchSuggestions(endStation, setEndSuggestions);
     };
 
-    const selectStartSuggestion = (place) => {
+    const selectStartSuggestion = (place: { address: { freeformAddress: string }, position: { lat: number, lon: number } }) => {
         setStartStation(place.address.freeformAddress);
         setStartStationCoord({ latitude: place.position.lat, longitude: place.position.lon });
         setStartSuggestions([]);
     };
 
-    const selectEndSuggestion = (place) => {
+    const selectEndSuggestion = (place: { address: { freeformAddress: string }, position: { lat: number, lon: number } }) => {
         setEndStation(place.address.freeformAddress);
         setEndStationCoord({ latitude: place.position.lat, longitude: place.position.lon });
         setEndSuggestions([]);
@@ -72,7 +73,7 @@ const ItineraryScreen = () => {
     const handleSearch = () => {
         if (startStationCoord.latitude && endStationCoord.latitude) {
             const startStation = {
-                name: nearestStartStation.name,
+                name: nearestStartStation ? nearestStartStation.name : '',
                 position: {
                     latitude: startStationCoord.latitude,
                     longitude: startStationCoord.longitude
@@ -80,7 +81,7 @@ const ItineraryScreen = () => {
             };
 
             const endStation = {
-                name: nearestEndStation.name,
+                name: nearestEndStation ? nearestEndStation.name : '',
                 position: {
                     latitude: endStationCoord.latitude,
                     longitude: endStationCoord.longitude

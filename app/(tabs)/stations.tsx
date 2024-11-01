@@ -1,13 +1,14 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, forwardRef } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
-import { Searchbar, Card, Text } from 'react-native-paper';
+import { Card, Text } from 'react-native-paper';
 import MapView, { Marker } from 'react-native-maps';
 import { useSearch } from '../contexts/SearchContext';
-import { useSearchBicycleStations } from '../../hooks/useSearchBicycleStations';
+import { useSearchBicycleStations } from '../hooks/useSearchBicycleStations';
 import { router, useNavigation } from 'expo-router';
+import { BicycleStation } from '@/types/BicycleStation';
 
-const StationsScreen = () => {
-  const mapRef = useRef(null);
+const StationsScreen = forwardRef<MapView>((props, ref) => {
+  const mapRef = useRef<MapView>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const { searchTerm, setSearchTerm, coordinates } = useSearch();
   const { filteredStations, loading, error } = useSearchBicycleStations();
@@ -31,16 +32,18 @@ const StationsScreen = () => {
     setSearchTerm('');
   }, [setSearchTerm]);
 
-  const goToAPoint = (station) => {
-    mapRef.current.animateToRegion({
-      latitude: station.position.latitude,
-      longitude: station.position.longitude,
-      latitudeDelta: 0.0001,
-      longitudeDelta: 0.0001,
-    });
+  const goToAPoint = (station: { position: { latitude: number; longitude: number; }; }) => {
+    if (mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: station.position.latitude,
+        longitude: station.position.longitude,
+        latitudeDelta: 0.0001,
+        longitudeDelta: 0.0001,
+      });
+    }
   }
 
-  const goToDetail = (station) => {
+  const goToDetail = (station: BicycleStation) => {
     router.push({
       pathname: '/details',
       params: {
@@ -50,7 +53,7 @@ const StationsScreen = () => {
     });
   }
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: BicycleStation }) => (
     <Card style={styles.card} onPress={() => goToAPoint(item)} onLongPress={() => goToDetail(item)}>
       <Card.Content>
         <Text>{item.name}</Text>
@@ -89,7 +92,7 @@ const StationsScreen = () => {
       />
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

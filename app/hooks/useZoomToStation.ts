@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 import { useAllBicycleStations } from './useAllBicycleStations';
 import { useSearch } from '../contexts/SearchContext';
 
-export function useZoomToStation(mapRef, stationName: string) {
+import { MutableRefObject } from 'react';
+
+export function useZoomToStation(mapRef: MutableRefObject<{ animateToRegion: (region: { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number }) => void } | null>, stationName: string) {
     const { stations } = useAllBicycleStations();
     const { setCoordinates } = useSearch();
 
