@@ -40,7 +40,7 @@ const Layout = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-          <SearchProvider>
+        <SearchProvider>
             <PaperProvider>
               <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

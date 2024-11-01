@@ -1,6 +1,6 @@
 import { useMemo, useEffect } from 'react';
 import { useAllBicycleStations } from './useAllBicycleStations';
-import { useSearch } from '../app/contexts/SearchContext';
+import { useSearch } from '../contexts/SearchContext';
 
 export function useSearchBicycleStations() {
     const { stations, loading, error } = useAllBicycleStations();

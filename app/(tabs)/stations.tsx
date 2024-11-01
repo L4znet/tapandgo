@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList } from 'react-native';
 import { Searchbar, Card, Text } from 'react-native-paper';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { useSearch } from '../contexts/SearchContext';
-import { useSearchBicycleStations } from '../../hooks/useSearchBicycleStations';
+import { useSearchBicycleStations } from '../hooks/useSearchBicycleStations';
 
 interface Station {
   number: number;
@@ -81,9 +81,6 @@ const StationsScreen: React.FC = () => {
         keyExtractor={(item, index) => index.toString()}
         onEndReachedThreshold={0.5}
       />
-      <View style={styles.zoomLevel}>
-        <Text>Longitude Delta: {longitudeDelta}</Text>
-      </View>
     </View>
   );
 };

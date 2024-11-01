@@ -1,4 +1,4 @@
-import { useAllBicycleStations } from '@/hooks/useAllBicycleStations'
+import { useAllBicycleStations } from '@/app/hooks/useAllBicycleStations'
 import { router } from 'expo-router';
 import React from 'react'
 import { View, StyleSheet, Text, FlatList } from 'react-native'

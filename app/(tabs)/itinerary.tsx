@@ -1,14 +1,11 @@
-import { useAllBicycleStations } from '@/hooks/useAllBicycleStations';
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, FlatList, Text, TouchableOpacity } from 'react-native';
+import { useAllBicycleStations } from '@/app/hooks/useAllBicycleStations';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView, FlatList, Text, TouchableOpacity, Alert } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import { TOMTOM_API_TOKEN } from '@env';
-import { useNearestBicycleStation } from '@/hooks/useNearestBicycleStations';
+import { useNearestBicycleStations } from '@/app/hooks/useNearestBicycleStations';
 
 const ItineraryScreen = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const { stations, loading, error } = useAllBicycleStations();
-    const [filteredStations, setFilteredStations] = useState(stations);
     const [startStation, setStartStation] = useState('');
     const [endStation, setEndStation] = useState('');
     const [startSuggestions, setStartSuggestions] = useState([]);
@@ -17,15 +14,27 @@ const ItineraryScreen = () => {
         latitude: null,
         longitude: null
     });
-
     const [endStationCoord, setEndStationCoord] = useState({
         latitude: null,
         longitude: null
     });
+    const [filteredStations, setFilteredStations] = useState([]);
 
-    const { nearestStation: nearestStartStation } = useNearestBicycleStation(startStationCoord.latitude, startStationCoord.longitude);
-    const { nearestStation: nearestEndStation } = useNearestBicycleStation(endStationCoord.latitude, endStationCoord.longitude);
+    const { nearestStation: nearestStartStation } = useNearestBicycleStations(startStationCoord.latitude, startStationCoord.longitude);
+    const { nearestStation: nearestEndStation } = useNearestBicycleStations(endStationCoord.latitude, endStationCoord.longitude);
 
+    useEffect(() => {
+        if (nearestStartStation) {
+            setStartStation(nearestStartStation);
+        }
+    }, [nearestStartStation]);
+
+    useEffect(() => {
+        if (nearestEndStation) {
+            setEndStation(nearestEndStation);
+        }
+    }, [nearestEndStation]);
+  
 
     const fetchSuggestions = async (query, setSuggestions) => {
         if (!query) return;
@@ -50,23 +59,42 @@ const ItineraryScreen = () => {
 
     const selectStartSuggestion = (place) => {
         setStartStation(place.address.freeformAddress);
+        setStartStationCoord({ latitude: place.position.lat, longitude: place.position.lon });
         setStartSuggestions([]);
-
     };
 
     const selectEndSuggestion = (place) => {
         setEndStation(place.address.freeformAddress);
+        setEndStationCoord({ latitude: place.position.lat, longitude: place.position.lon });
         setEndSuggestions([]);
     };
 
-    const handleSearch = (startLatitude, startLongitude, endLatitude, endLongitude) => {
-        setStartStationCoord({ latitude: startLatitude, longitude: startLongitude });
-        setEndStationCoord({ latitude: endLatitude, longitude: endLongitude });
-    }
+    const handleSearch = () => {
+        if (startStationCoord.latitude && endStationCoord.latitude) {
+            const startStation = {
+                name: nearestStartStation.name,
+                position: {
+                    latitude: startStationCoord.latitude,
+                    longitude: startStationCoord.longitude
+                }
+            };
+
+            const endStation = {
+                name: nearestEndStation.name,
+                position: {
+                    latitude: endStationCoord.latitude,
+                    longitude: endStationCoord.longitude
+                }
+            };
+
+            setFilteredStations([startStation, endStation]);
+        } else {
+            Alert.alert('Erreur', 'Veuillez sélectionner des stations valides.');
+        }
+    };
 
     return (
         <View style={styles.container}>
-            <ScrollView style={styles.scrollViewContainer}>
                 <View style={styles.itineraryContainer}>
                     <TextInput
                         style={styles.itineraryInput}
@@ -104,11 +132,22 @@ const ItineraryScreen = () => {
                         />
                     )}
 
-                    <Button mode="contained" onPress={() => handleSearch(startStation.position.latitude, startStation.position.longitude, endStation.position.latitude, endStation.position.longitude)}>
+                    <Button mode="contained" onPress={handleSearch}>
                         Rechercher
                     </Button>
                 </View> 
-            </ScrollView>
+            {filteredStations.length > 0 && (
+                <View style={styles.results}>
+                    <View style={styles.card}>
+                        <Text style={styles.cardTitle}>Station de départ</Text>
+                        <Text style={styles.cardResult}> {filteredStations[0].name}</Text>
+                     </View>
+                     <View style={styles.card}>
+                        <Text style={styles.cardTitle}>Station d'arrivée</Text>
+                        <Text style={styles.cardResult}> {filteredStations[1].name}</Text>
+                     </View>
+                </View>
+            )}
         </View>
     );
 }
@@ -116,18 +155,20 @@ const ItineraryScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
     },
     scrollViewContainer: {
         width: '100%',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
     },
     itineraryContainer:{
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        height: 230,
         backgroundColor: '#1e1e1e',
+        padding: 20,
     },
     itineraryInput: {
         margin: 10,
@@ -141,6 +182,32 @@ const styles = StyleSheet.create({
         width: '95%',
         marginVertical: 2,
         borderRadius: 5
+    },
+    card: {
+        width: 350,
+        margin: 10,
+        textAlign: 'center',
+        backgroundColor: '#333',
+        paddingHorizontal: 20,
+        paddingVertical: 40,
+        display: 'flex',
+      },
+    cardTitle: {
+        color: 'white',
+        fontSize: 15,
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    cardResult: {
+        color: 'white',
+        fontSize: 25,
+        textAlign: 'center',
+        marginTop: 10,
+    },
+    results: {
+        width: '100%',
+        flex: 1,
+        
     },
 });
 

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAllBicycleStations } from './useAllBicycleStations';
-import { useSearch } from '../app/contexts/SearchContext';
+import { useSearch } from '../contexts/SearchContext';
 
 export function useZoomToStation(mapRef, stationName: string) {
     const { stations } = useAllBicycleStations();
