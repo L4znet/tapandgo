@@ -122,7 +122,7 @@ const TabLayout: React.FC = () => {
         options={{
           title: "Itinéraire",
           tabBarIcon: ({ color, focused }) => (
-            <Icon name={focused ? "map-marker-path" : "map-marker-path-outline"} color={color} size={24} />
+            <Icon name={focused ? "map-marker" : "map-marker-outline"} color={color} size={24} />
           ),
         }}
       />
