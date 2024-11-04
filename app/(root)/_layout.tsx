@@ -5,13 +5,16 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Appbar } from 'react-native-paper';
 import { getHeaderTitle } from '@react-navigation/elements';
 import DetailsScreen from './details';
+import { useNavigation } from 'expo-router';
 
 const Stack = createStackNavigator();
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
 
+
+export default function RootLayout() {
+const navigation = useNavigation();
   return (
     <Stack.Navigator
     initialRouteName="search"
@@ -20,6 +23,8 @@ export default function RootLayout() {
         const title = getHeaderTitle(options, route.name);
         return (
           <Appbar.Header>
+            <Appbar.BackAction 
+              onPress={() => navigation.goBack()} />
             <Appbar.Content title={title} />
           </Appbar.Header>
         )
