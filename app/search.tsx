@@ -1,30 +1,53 @@
 import { useAllBicycleStations } from '@/app/hooks/useAllBicycleStations'
 import { router } from 'expo-router';
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, FlatList } from 'react-native'
 import { Card, Searchbar } from 'react-native-paper';
+import { useSearch } from './contexts/SearchContext';
+import { BicycleStation } from '@/types/BicycleStation';
 
 const SearchScreen = () => {
-
-    const [searchQuery, setSearchQuery] = React.useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const { stations, loading, error } = useAllBicycleStations();
-    const [filteredStations, setFilteredStations] = React.useState(stations);
+    const [filteredStations, setFilteredStations] = useState<BicycleStation[]>([]);
 
-    React.useEffect(() => {
-        setFilteredStations(stations);
-    }, [stations]);
+    const { isStationOpened, isBiclooAvailable } = useSearch();
 
-    const handleSearch = () => {
-        const filtered = stations.filter(station => station.name.toLowerCase().includes(searchQuery.toLowerCase()));
-        setFilteredStations(filtered);
-    }
+    useEffect(() => {
+        const applyFilters = () => {
+            let filtered = stations || [];
+         
+            if (isStationOpened !== 'all') {
+                filtered = filtered.filter(station => {
+                  return isStationOpened === 'opened' ? station.status === 'OPEN' : station.status === 'CLOSED';
+                }
+                );
+            }
 
-    const handleClearSearch = () => {
-        setSearchQuery('');
-        setFilteredStations(stations);
-    }
+            if (isBiclooAvailable !== 'yes') {
+                filtered = filtered.filter(station => {
+                  isBiclooAvailable === 'yes' ? station.totalStands.availabilities.bikes > 0 : station.totalStands.availabilities.bikes === 0
+                }
+                );
+            }
 
-    const goToDetail = (station) => {
+            if (searchQuery) {
+                filtered = filtered.filter(station =>
+                    station.name.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+
+            setFilteredStations(filtered);
+        };
+
+        applyFilters();
+    }, [stations, isStationOpened, isBiclooAvailable, searchQuery]);
+
+    const handleSearch = (query: React.SetStateAction<string>) => {
+        setSearchQuery(query);
+    };
+
+    const goToDetail = (station: { number: any; contractName: any; }) => {
         router.push({
           pathname: '/details',
           params: {
@@ -32,33 +55,36 @@ const SearchScreen = () => {
             contractName: station.contractName,
           },
         });
-      }
+    };
 
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item }: { item: any }) => (
         <Card style={styles.card} onPress={() => goToDetail(item)}>
           <Card.Content>
-            <Text style={{color:"white"}}>{item.name}</Text>
+            <Text style={{ color: "white" }}>{item.name}</Text>
           </Card.Content>
         </Card>
-      );
-
-
+    );
 
     return (
         <View style={styles.container}>
-            <View style={{flex: 1, width: '100%'}}>
+            <Searchbar
+                placeholder="Rechercher une station"
+                onChangeText={handleSearch}
+                value={searchQuery}
+                style={styles.searchBar}
+            />
+            <View style={{ flex: 1, width: '100%' }}>
                 <FlatList
                     horizontal={false}
                     initialNumToRender={7}
                     data={filteredStations}
                     renderItem={renderItem}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={(item) => item.name.toString()}
                     onEndReachedThreshold={0.5}
                 />
             </View>
-
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -66,24 +92,15 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
     },
-    card:{
+    card: {
         width: '95%',
         margin: 10,
     },
-    searchBarContainer:{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        height: 80,
-        backgroundColor: '#1e1e1e',
-      },
-      searchBar: {
+    searchBar: {
         margin: 20,
         width: '95%',
-        color: 'white'
+        color: 'white',
     },
-})
+});
 
-export default SearchScreen
+export default SearchScreen;

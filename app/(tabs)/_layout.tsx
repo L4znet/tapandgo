@@ -10,6 +10,7 @@ import SearchScreen from '../search';
 import ItineraryScreen from './itinerary';
 import { useSearch } from '../contexts/SearchContext';
 import MapView from 'react-native-maps';
+import SearchDrawer from '../components/SearchDrawer';
 
 const Tab = createBottomTabNavigator();
 
@@ -97,21 +98,10 @@ const TabLayout: React.FC = () => {
       </Tab.Screen>
       <Tab.Screen
         name="search"
-        component={SearchScreen}
+        component={SearchDrawer}
         options={{
+          headerShown: false,
           title: "Rechercher",
-          header: () => (
-            <Appbar.Header style={styles.headerSearchBar}>
-              <Appbar.Content title={"Rechercher"} style={styles.headerContent} />
-              <Searchbar
-                placeholder="Rechercher une station"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                onIconPress={handleSearch}
-                onEndEditing={handleSearch}
-                style={styles.searchBar} />
-            </Appbar.Header>
-          ),
           tabBarIcon: ({ color, focused }) => (
             <Icon name={focused ? "magnify" : "magnify"} color={color} size={24} />
           ),
@@ -134,11 +124,6 @@ const TabLayout: React.FC = () => {
 const styles = StyleSheet.create({
   header: {
     height: 60,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  headerSearchBar: {
-    height: 150,
     display: 'flex',
     flexDirection: 'column',
   },

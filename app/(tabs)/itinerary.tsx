@@ -133,7 +133,7 @@ const ItineraryScreen = () => {
                         />
                     )}
 
-                    <Button mode="contained" onPress={handleSearch}>
+                    <Button mode="contained" style={styles.button} onPress={handleSearch}>
                         Rechercher
                     </Button>
                 </View> 
@@ -208,7 +208,10 @@ const styles = StyleSheet.create({
     results: {
         width: '100%',
         flex: 1,
-        
+    },
+    button: {
+        width: '70%',
+        margin: 10,
     },
 });
 

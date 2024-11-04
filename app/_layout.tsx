@@ -1,7 +1,7 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import 'react-native-screens';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -24,8 +24,6 @@ const Layout = () => {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  
-
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -35,7 +33,6 @@ const Layout = () => {
   if (!loaded) {
     return null;
   }
-
 
 
   return (

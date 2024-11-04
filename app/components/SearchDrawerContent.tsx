@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Text, Drawer, SegmentedButtons } from "react-native-paper";
 import { SafeAreaView, StyleSheet, View } from "react-native";
+import { useSearch } from "../contexts/SearchContext";
 
 
 
 const SearchDrawerContent = () => {
-    const [isBiclooAvailable, setIsBiclooAvailable] = useState('yes');
-    const [isStationOpened, setIsStationOpened] = useState('all');
 
-    const DrawerContentItem = ({title, children}) => {
+    const { isBiclooAvailable, setIsBiclooAvailable, isStationOpened, setIsStationOpened } = useSearch();
+
+    const DrawerContentItem = ({title, children}: {title: string, children: React.ReactNode}) => {
         return (
             <View style={styles.drawerItem}>
                 <Text style={styles.drawerItemTitle}>{title}</Text>
@@ -95,6 +96,12 @@ const styles = StyleSheet.create({
         fontSize: 20,
         width: "90%",
         marginVertical: 30,
+    },
+    drawerItem: {
+        marginVertical: 10,
+        padding: 10,
+        backgroundColor: "#2e2e2e",
+        borderRadius: 5,
     }
 });
 
