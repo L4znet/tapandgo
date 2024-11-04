@@ -1,18 +1,14 @@
-import React, { useRef, useState, useEffect, useCallback, forwardRef } from 'react';
+import React, { useRef, useState, forwardRef, memo, useCallback } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import MapView, { Marker } from 'react-native-maps';
-import { useSearch } from '../contexts/SearchContext';
 import { useSearchBicycleStations } from '../hooks/useSearchBicycleStations';
 import { router, useNavigation } from 'expo-router';
 import { BicycleStation } from '@/types/BicycleStation';
 
 const StationsScreen = forwardRef<MapView>((props, ref) => {
   const mapRef = useRef<MapView>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const { searchTerm, setSearchTerm, coordinates } = useSearch();
   const { filteredStations, loading, error } = useSearchBicycleStations();
-  const [longitudeDelta, setLongitudeDelta] = useState(null);
 
   const [initialRegion, setInitialRegion] = useState({
     latitude: 47.2184,
@@ -21,16 +17,6 @@ const StationsScreen = forwardRef<MapView>((props, ref) => {
     longitudeDelta: 0.10,
   });
 
-  const navigation = useNavigation();
-
-  const handleSearch = useCallback(() => {
-    setSearchTerm(searchQuery);
-  }, [searchQuery, setSearchTerm]);
-
-  const handleClearSearch = useCallback(() => {
-    setSearchQuery('');
-    setSearchTerm('');
-  }, [setSearchTerm]);
 
   const goToAPoint = (station: { position: { latitude: number; longitude: number; }; }) => {
     if (mapRef.current) {
@@ -53,16 +39,37 @@ const StationsScreen = forwardRef<MapView>((props, ref) => {
     });
   }
 
-  const renderItem = ({ item }: { item: BicycleStation }) => (
-    <Card style={styles.card} onPress={() => goToAPoint(item)} onLongPress={() => goToDetail(item)}>
+
+  const renderItem = useCallback(({ item }: { item: BicycleStation }) => (
+    <Card style={styles.card} onPress={() => {
+      goToAPoint({
+        position: {
+          latitude: item.position.latitude,
+          longitude: item.position.longitude,
+        }
+      })
+    }} onLongPress={() => goToDetail(item)}>
       <Card.Content>
         <Text>{item.name}</Text>
       </Card.Content>
     </Card>
-  );
+  ), []);
 
   if (loading) return <View><Text>Loading...</Text></View>;
   if (error) return <View><Text>Error: {error.message}</Text></View>;
+
+  const MemoizedMarker = memo(({ station, index }: { station: BicycleStation, index: number }) => (
+    <Marker
+      onPress={() => goToDetail(station)}
+      key={index}
+      coordinate={{
+        latitude: station.position.latitude,
+        longitude: station.position.longitude,
+      }}
+      title={station.name}
+    />
+  ));
+
 
   return (
     <View style={styles.container}>
@@ -72,15 +79,7 @@ const StationsScreen = forwardRef<MapView>((props, ref) => {
         initialRegion={initialRegion}
       >
         {filteredStations.map((station, index) => (
-          <Marker
-            onPress={() => goToDetail(station)}
-            key={index}
-            coordinate={{
-              latitude: station.position.latitude,
-              longitude: station.position.longitude,
-            }}
-            title={station.name}
-          />
+          <MemoizedMarker key={index} station={station} index={index} />
         ))}
       </MapView>
       <FlatList

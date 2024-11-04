@@ -17,8 +17,8 @@ export function useZoomToStation(mapRef: MutableRefObject<{ animateToRegion: (re
 
         if (station && station.position) {
             const { latitude, longitude } = station.position;
-            const longitudeDelta = 0.001; // Ajustez le niveau de zoom
-            const latitudeDelta = 0.001; // Ajustez le niveau de zoom
+            const longitudeDelta = 0.001; 
+            const latitudeDelta = 0.001; 
             setCoordinates({ latitude, longitude, latitudeDelta, longitudeDelta });
 
             if (mapRef.current) {
